@@ -11,15 +11,22 @@ course_df = pd.read_csv('file4.csv', delimiter=';')
 classes = class_df['classid'].unique()
 courses = course_df['Course Code'].unique()
 faculty = faculty_df['facultycode'].unique()
+hoursPerWeek = course_df['hours per week']
 
 #given a class returns its subjects and the respective faculty
 def class_courses(Class):
     classes, courses = class_df['classid'], class_df['Course Code']
+    courses1 = course_df['Course Code']
     course = course_faculty_df['Course Code']
     faculties = course_faculty_df['facultycode']
     Courses = [courses[_] for _ in range(len(classes)) if classes[_] == Class]
     faculty_with_course = [[course[_],faculties[_]] for _ in range(len(faculties)) if course[_] in Courses]
-    return faculty_with_course
+    overall = []
+    for c in faculty_with_course:
+        for _ in range(len(courses1)):
+            if c[0] == courses1[_]:
+                overall.extend([c]*int(hoursPerWeek[_]))
+    return overall
 
 # Parameters for the genetic algorithm
 POPULATION_SIZE = 100
@@ -46,7 +53,15 @@ def fitness(timetable):
 def create_individual():
     timetable = {}
     for cls in classes:
-        timetable[cls] = [random.choice(class_courses(cls)) for _ in range(NUM_TIMESLOTS)]
+        crsList = class_courses(cls)
+        timetable[cls] = []
+        for _ in range(NUM_TIMESLOTS):
+            if crsList:
+                randomClass = random.choice(crsList)
+                timetable[cls].append(randomClass)
+                crsList.remove(randomClass)
+            else:
+                break
     return timetable
 
 def create_population():
@@ -66,7 +81,15 @@ def crossover(parent1, parent2):
 def mutate(individual):
     for cls in classes:
         if random.random() < MUTATION_RATE:
-            individual[cls] = [random.choice(class_courses(cls)) for _ in range(NUM_TIMESLOTS)]
+            crsList = class_courses(cls)
+            individual[cls] = []
+            for _ in range(NUM_TIMESLOTS):
+                if crsList:
+                    randomClass = random.choice(crsList)
+                    individual[cls].append(randomClass)
+                    crsList.remove(randomClass)
+                else:
+                    break
     return individual
 
 # Main genetic algorithm
