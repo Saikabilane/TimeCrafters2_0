@@ -20,12 +20,14 @@ def class_courses(Class):
     course = course_faculty_df['Course Code']
     faculties = course_faculty_df['facultycode']
     Courses = [courses[_] for _ in range(len(classes)) if classes[_] == Class]
-    faculty_with_course = [[course[_],faculties[_]] for _ in range(len(faculties)) if course[_] in Courses]
+    faculty_with_course = [[course[_], faculties[_]] for _ in range(len(faculties)) if course[_] in Courses]
     overall = []
     for c in faculty_with_course:
         for _ in range(len(courses1)):
             if c[0] == courses1[_]:
-                overall.extend([c]*int(hoursPerWeek[_]))
+                overall.extend([c] * int(hoursPerWeek[_]))
+    remainingClass = len(period_times) - len(overall)
+    overall.extend(['Free Period'] * int(remainingClass))
     return overall
 
 # Parameters for the genetic algorithm
@@ -120,6 +122,6 @@ best_timetable = genetic_algorithm()
 # Output the best timetable with period times
 for cls, schedule in best_timetable.items():
     print(f"Class {cls}:")
-    for timeslot, (course, fac) in enumerate(schedule):
+    for timeslot, course_fac in enumerate(schedule):
         period_time = period_times[timeslot]
-        print(f"  {period_time}: {course} with {fac}")
+        print(f"  {period_time}: {course_fac[0]} with {course_fac[1]}") if course_fac != "Free Period" else print(f"  {period_time}: Free Period")
