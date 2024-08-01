@@ -98,7 +98,7 @@ def fitness(timetable):
                     x.extend(all)
             y = set(x)
             if len(x) != len(y):
-                fitness_score += 0
+                fitness_score += 1
         for cls, schedule in timetable.items():
             for _ in range(NUM_TIMESLOTS):
                 if isLabClasses(schedule[_]) == "Lab":
